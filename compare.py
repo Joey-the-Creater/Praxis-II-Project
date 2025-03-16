@@ -4,15 +4,6 @@ import numpy as np
 import cv2
 import Brickoganize
 
-def compare(img1: Image.Image, img2: Image.Image) -> int:
-    gimg1 = cv2.cvtColor(np.array(img1), cv2.COLOR_BGR2GRAY)
-    gimg2 = cv2.cvtColor(np.array(img2), cv2.COLOR_BGR2GRAY)
-    diff = cv2.absdiff(gimg1, gimg2)
-    return np.sum(diff)
-index=1
-import cv2
-import numpy as np
-
 def capture_background(cap):
     ret, background = cap.read()
     if not ret:
