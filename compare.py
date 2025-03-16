@@ -40,7 +40,7 @@ def main():
         foreground_mask = detect_foreground(background, frame)
         
         # Check if significant change is detected
-        if np.count_nonzero(foreground_mask) > 500:
+        if np.count_nonzero(foreground_mask) > 700:
             print("LEGO detected!")
             cv2.imwrite('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/'+"test.jpg", frame)
             print("save image successfuly!")

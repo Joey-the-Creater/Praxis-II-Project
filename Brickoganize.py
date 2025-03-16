@@ -4,7 +4,7 @@ def get_brickognize_data(image_path):
     res = requests.post(
         'https://api.brickognize.com/predict/',
         headers={'accept': 'application/json'},
-        files={'query_image': ('test.png', open(r'c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg','rb'), 'image/png')},
+        files={'query_image': ('test.jpg', open(r'c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg','rb'), 'image/jpg')},
     )
     response_data = json.loads(res.content)
 
