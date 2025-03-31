@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 def get_brickognize_data(image_path):
     res = requests.post(
         'https://api.brickognize.com/predict/',
@@ -16,3 +17,11 @@ def get_brickognize_data(image_path):
 
     print_first_item(response_data)
 
+if __name__=='__main__':
+    t=0
+    for i in range(100):
+        start_time=time.time()
+        get_brickognize_data('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg')
+        end_time=time.time()
+        t+=(end_time-start_time)
+    print("Average time taken for each request: ",t/50)
