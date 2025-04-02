@@ -3,7 +3,8 @@ import os
 import numpy as np
 import cv2
 import Brickoganize
-
+import threading
+import time
 def capture_background(cap):
     ret, background = cap.read()
     if not ret:
@@ -28,7 +29,7 @@ def color(frame, foreground_contour):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
     # Define color ranges for LEGO bricks
     color_ranges = {
-        'black': ([0, 0, 0], [180, 255, 46], (0, 0, 0)),
+        #'black': ([0, 0, 0], [180, 255, 46], (0, 0, 0)),
         'white': ([0, 0, 221], [180, 30, 255], (255, 255, 255)),
         'red': ([0, 43, 46], [10, 255, 255], (0, 0, 255)),
         'orange': ([11, 43, 46], [25, 255, 255], (0, 165, 255)),
@@ -80,29 +81,30 @@ def main():
     cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)  # Open webcam
 
     print("Capturing background...")
+    time.sleep(1.5) 
     background = capture_background(cap)
     
     while True:
         ret, frame = cap.read()
         if not ret:
             break
-        '''
-        foreground_mask = detect_foreground(background, frame)
+
+        foreground_mask,contour = detect_foreground(background, frame)
         
         if np.count_nonzero(foreground_mask) > 700:
             print("LEGO detected!")
             cv2.imwrite('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/'+"test.jpg", frame)
             print("save image successfuly!")
             print("-------------------------")
-            Brickoganize.get_brickognize_data('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg')
+
+            threading.Thread(target=Brickoganize.get_brickognize_data, args=('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg',)).start()
         else:
             print("No LEGO detected.")
         
         cv2.imshow("Foreground Mask", foreground_mask)
         cv2.imshow("Frame", frame)
-        '''
         # Display the frame
-        foreground_mask,contour = detect_foreground(background, frame)
+        
         x, y, w, h = contour
         color(frame,contour)
         cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
@@ -110,6 +112,7 @@ def main():
         cv2.imshow("Foreground Mask", foreground_mask)
         
         cv2.imshow("Frame", frame)
+        time.sleep(0.25)  # Add a small delay to control the frame rate
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     

@@ -7,11 +7,21 @@ def get_brickognize_data(image_path):
         headers={'accept': 'application/json'},
         files={'query_image': ('test.jpg', open(r'c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg','rb'), 'image/jpg')},
     )
-    response_data = json.loads(res.content)
+    try:
+        response_data = json.loads(res.content)
+    except json.JSONDecodeError:
+        response_data = None
+        print("Empty response received.")
+        return
 
     def print_first_item(data):
         if 'items' in data and len(data['items']) > 0:
-            print(json.dumps(data['items'][0], indent=4))
+            item = data['items'][0]
+            name = item.get('name', 'N/A')
+            category = item.get('category', 'N/A')
+            type_ = item.get('type', 'N/A')
+            score = item.get('score', 'N/A')
+            print(f"Name: {name}, Category: {category}, Type: {type_}, Score: {score}")
         else:
             print("No items found")
 
