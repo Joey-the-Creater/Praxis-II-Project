@@ -12,12 +12,23 @@ title_label.pack(pady=10)
 button_frame = Frame(root)
 button_frame.pack(pady=20)
 
+if not hasattr(root, '_status_initialized'):
+    with open("Status.txt", "w") as file:
+        file.write("Status: Stop\n")
+    file.close()
+    root._status_initialized = True
 
 def start_sorting():
     status_label.config(text="Status: Running", fg="green")
+    with open("Status.txt", "w") as file:
+        file.write("Status: Start\n")
+    file.close()
 
 def stop_sorting():
     status_label.config(text="Status: Stop", fg="red")
+    with open("Status.txt", "w") as file:
+        file.write("Status: Stop\n")
+    file.close()
 
 def bin_full():
     status_label.config(text="Status: Bin Full", fg="orange")
@@ -54,6 +65,7 @@ def update_sorting_options(bin_number, bin_type, bin_color, level=None):
     with open("sorting_options.txt", "w") as file:
         for bin_number, options in sorting_options.items():
             file.write(f"Bin {bin_number}: Type={options['Type']}, Color={options['Color']}\n")
+    file.close()
 
 # Modify the set_sorting_top function to update sorting options
 def set_sorting_top():

@@ -13,7 +13,7 @@ Bin 12: Type=None, Color=None
 Bin 13: Type=None, Color=None
 Bin 14: Type=None, Color=None
 Bin 15: Type=None, Color=None
-Bin 16: Type=None, Color=None
+Bin 16: Type=Minifig, Color=Gray
 Bin 17: Type=None, Color=None
 Bin 18: Type=None, Color=None
 Bin 19: Type=None, Color=None
