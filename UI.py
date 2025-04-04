@@ -248,7 +248,7 @@ label = Label(root)
 label.pack(pady=10)
 
 def auto_detect():
-    with open('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/response.txt', 'r') as f:
+    with open('response.txt', 'r') as f:
         content = f.read().strip()
         label.config(text=f"Detected LEGO: {content}", font=("Helvetica", 9))
     root.after(100, auto_detect)

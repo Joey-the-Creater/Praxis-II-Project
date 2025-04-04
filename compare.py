@@ -100,15 +100,15 @@ def main(root):
 
             if np.count_nonzero(foreground_mask) > 700:
                 print("LEGO detected!")
-                cv2.imwrite('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/' + "test.jpg", frame)
+                cv2.imwrite('Image/' + "test.jpg", frame)
                 print("Save image successfully!")
                 print("-------------------------")
 
                 threading.Thread(target=Brickoganize.get_brickognize_data,
-                                 args=('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg',)).start()
+                                 args=('Image/test.jpg',)).start()
             else:
                 print("No LEGO detected.")
-                with open('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/response.txt', 'w') as f:
+                with open('Image/response.txt', 'w') as f:
                     f.write("LEGO not detected")
                 f.close()
             x, y, w, h = contour
