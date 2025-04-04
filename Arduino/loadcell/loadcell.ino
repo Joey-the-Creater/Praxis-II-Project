@@ -2,6 +2,15 @@
 
 #define DOUT  3
 #define CLK  2
+#define enA 10
+#define in1 9
+#define in2 8
+#define in3 7
+#define in4 6
+#define enB 5
+
+int speedFast = 250;
+int speedSlow = 200;
 
 char userinput;
 HX711 scale;
@@ -11,6 +20,13 @@ float calibration_factor = 435197.81; //-7050 * 0.453592; // Adjusted for kilogr
 void setup() {
   Serial.begin(9600);
 
+  pinMode(enA, OUTPUT);
+  pinMode(in1, OUTPUT);
+  pinMode(in2, OUTPUT);
+  pinMode(in3, OUTPUT);
+  pinMode(in4, OUTPUT);
+  pinMode(enB, OUTPUT);
+
   scale.begin(DOUT, CLK);
   scale.set_scale();
   scale.tare(); // Reset the scale to 0
@@ -18,9 +34,19 @@ void setup() {
   long zero_factor = scale.read_average(); // Get a baseline reading
   Serial.print("Zero factor: ");
   Serial.println(zero_factor); // Useful for permanent scale projects
+
+
 }
 
 void loop() {
+  analogWrite(enA, speedFast);
+  digitalWrite(in1, HIGH);
+  digitalWrite(in2, LOW);
+
+  analogWrite(enB, speedSlow);
+  digitalWrite(in3, HIGH);
+  digitalWrite(in4, LOW);
+
   scale.set_scale(calibration_factor); // Adjust to this calibration factor
 
   // Convert the reading to grams
@@ -33,8 +59,10 @@ void loop() {
   Serial.print(calibration_factor);
   Serial.println();
 
-  if (weight_in_grams >= 150) {
+  if (weight_in_grams >= 165) {
     Serial.println("ALERT: Bin is Full");  
+    speedFast = 0;
+    speedSlow = 0;
   }
 
   delay(2000);
