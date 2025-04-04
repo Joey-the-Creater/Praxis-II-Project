@@ -1,5 +1,11 @@
+import serial
+import threading
 from tkinter import *
 import tkinter.messagebox as messagebox
+
+
+port = '/dev/cu.usbmodem11301'
+ser = serial.Serial(port, 9600, timeout=1)
 
 root = Tk()
 root.geometry("650x450")
@@ -54,6 +60,17 @@ for i in range(1, 26):
         "Type": "None",
         "Color": "None"
     }
+
+def check_weight():
+    while True:
+        if ser.in_waiting > 0:
+            line = ser.readline().decode("utf-8").strip()
+            print(line)
+
+            if line and "ALERT: Bin is Full" in line: 
+                print("Bin is full! Stopping sorting.")
+                stop_sorting()
+                bin_full()
 
 # Function to update the dictionary with sorting options
 def update_sorting_options(bin_number, bin_type, bin_color, level=None):
@@ -207,5 +224,7 @@ def display_sorting_table_scrollable():
 # Button to display the sorting table
 table_button = Button(root, text="Show Sorting Table", font=("Arial", 12), command=display_sorting_table_scrollable, bg="purple", fg="white")
 table_button.pack(pady=20)
+
+threading.Thread(target=check_weight, daemon=True).start()
 
 root.mainloop()
