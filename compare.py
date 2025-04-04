@@ -1,10 +1,14 @@
-from PIL import Image
+from PIL import Image, ImageTk
+import sys
 import os
 import numpy as np
 import cv2
 import Brickoganize
 import threading
 import time
+import tkinter as tk
+from tkinter import messagebox
+
 def capture_background(cap):
     ret, background = cap.read()
     if not ret:
@@ -77,47 +81,91 @@ def color(frame, foreground_contour):
 
     
 
-def main():
-    cap = cv2.VideoCapture(0,cv2.CAP_DSHOW)  # Open webcam
+def main(root):
+    def check_status():
+        with open("Status.txt", "r") as file:
+            status = file.read().strip()
+        return status
+
+    def update_frame():
+        status = check_status()
+        if status == "Status: Start":
+            ret, frame = cap.read()
+            if not ret:
+                cap.release()
+                cv2.destroyAllWindows()
+                return
+
+            foreground_mask, contour = detect_foreground(background, frame)
+
+            if np.count_nonzero(foreground_mask) > 700:
+                print("LEGO detected!")
+                cv2.imwrite('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/' + "test.jpg", frame)
+                print("Save image successfully!")
+                print("-------------------------")
+
+                threading.Thread(target=Brickoganize.get_brickognize_data,
+                                 args=('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg',)).start()
+            else:
+                print("No LEGO detected.")
+                with open('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/response.txt', 'w') as f:
+                    f.write("LEGO not detected")
+                f.close()
+            x, y, w, h = contour
+            color(frame, contour)
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            cv2.putText(frame, "Contour", (x, y + h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0))
+            frame = cv2.resize(frame, (400, 300))
+            # Convert the frame to an image format compatible with Tkinter
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = Image.fromarray(frame_rgb)
+            imgtk = ImageTk.PhotoImage(image=img)
+            
+            # Update the label with the new frame
+            video_label.imgtk = imgtk
+            video_label.configure(image=imgtk)
+
+        else:
+            # Create a black screen
+            black_screen = np.zeros((300, 400, 3), dtype=np.uint8)
+            black_screen_rgb = cv2.cvtColor(black_screen, cv2.COLOR_BGR2RGB)
+            cv2.putText(black_screen_rgb, "No Video Feed", (50, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            img = Image.fromarray(black_screen_rgb)
+            imgtk = ImageTk.PhotoImage(image=img)
+
+            # Display the black screen
+            video_label.imgtk = imgtk
+            video_label.configure(image=imgtk)
+
+        # Schedule the next frame update
+        root.after(200, update_frame)
+
+    print("Initializing...")
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # Open webcam
 
     print("Capturing background...")
-    time.sleep(1.5) 
+    time.sleep(1.5)
     background = capture_background(cap)
-    
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-            break
 
-        foreground_mask,contour = detect_foreground(background, frame)
-        
-        if np.count_nonzero(foreground_mask) > 700:
-            print("LEGO detected!")
-            cv2.imwrite('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/'+"test.jpg", frame)
-            print("save image successfuly!")
-            print("-------------------------")
+    # Create a frame to hold the video feed and buttons
+    main_frame = tk.Frame(root, width=400, height=300)
+    main_frame.pack(side=tk.RIGHT, padx=20, pady=20)
+    main_frame.pack_propagate(False)  # Prevent the frame from resizing to fit its content
 
-            threading.Thread(target=Brickoganize.get_brickognize_data, args=('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/test.jpg',)).start()
-        else:
-            print("No LEGO detected.")
-        
-        cv2.imshow("Foreground Mask", foreground_mask)
-        cv2.imshow("Frame", frame)
-        # Display the frame
-        
-        x, y, w, h = contour
-        color(frame,contour)
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(frame, "Contour", (x, y+h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0))
-        cv2.imshow("Foreground Mask", foreground_mask)
-        
-        cv2.imshow("Frame", frame)
-        time.sleep(0.25)  # Add a small delay to control the frame rate
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-    
-    cap.release()
-    cv2.destroyAllWindows()
+    # Create a label to display the video feed
+    video_label = tk.Label(main_frame)
+    video_label.pack()
+
+    # Start updating frames
+    update_frame()
+
+    # Handle window close event
+    def on_closing():
+        cap.release()
+        cv2.destroyAllWindows()
+        root.destroy()
+
+    root.protocol("WM_DELETE_WINDOW", on_closing)
 
 if __name__ == "__main__":
     main()

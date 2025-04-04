@@ -22,9 +22,14 @@ def get_brickognize_data(image_path):
             type_ = item.get('type', 'N/A')
             score = item.get('score', 'N/A')
             print(f"Name: {name}, Category: {category}, Type: {type_}, Score: {score}")
+            with open('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/response.txt', 'w') as f:
+                f.write(f"Name: {name}, Category: {category}, Type: {type_}")
+            f.close()
         else:
-            print("No items found")
-
+            #print("No items found")
+            with open('c:/Users/swale/Desktop/UofT/Year 1/Praxis-II-Project/Image/response.txt', 'w') as f:
+                f.write("LEGO not detected")            
+            f.close()
     print_first_item(response_data)
 
 if __name__=='__main__':
