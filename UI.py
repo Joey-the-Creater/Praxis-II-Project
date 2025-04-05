@@ -132,11 +132,13 @@ def tell_angle(bin):
     if bin<19:
         top=True
     return
+
 # Initialize the serial connection
-#port = '/dev/cu.usbmodem11301'
-#ser = serial.Serial(port, 9600, timeout=1)
-#threading.Thread(target=check_weight, daemon=True).start()
+port = '/dev/cu.usbmodem11301'
+ser = serial.Serial(port, 9600, timeout=1)
+threading.Thread(target=check_weight, daemon=True).start()
 threading.Thread(target=determine_bin, daemon=True).start()
+
 def start_sorting():
     status_label.config(text="Status: Running", fg="green")
     with open("Status.txt", "w") as file:

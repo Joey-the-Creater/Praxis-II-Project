@@ -1,4 +1,5 @@
 #include "HX711.h"
+#include <Servo.h>
 
 #define DOUT  3
 #define CLK  2
@@ -14,6 +15,7 @@ int speedSlow = 200;
 
 char userinput;
 HX711 scale;
+Servo myservo;
 
 float calibration_factor = 435197.81; //-7050 * 0.453592; // Adjusted for kilograms, later used for grams
 
@@ -34,7 +36,7 @@ void setup() {
   long zero_factor = scale.read_average(); // Get a baseline reading
   Serial.print("Zero factor: ");
   Serial.println(zero_factor); // Useful for permanent scale projects
-
+  myservo.attach(11);
 
 }
 
@@ -65,7 +67,15 @@ void loop() {
     speedSlow = 0;
   }
 
-  delay(2000);
+  delay(1000);
+
+  if (Serial.available()) {
+    String input = Serial.readStringUntil('\n');
+    int angle = input.toInt();
+
+    int servoAngle = constrain(angle + 90, 0, 180); // Map -90–90 to 0–180
+    myservo.write(servoAngle);
+  }
 
   // if (Serial.available()) {
   //   char temp = Serial.read();

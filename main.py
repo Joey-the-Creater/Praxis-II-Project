@@ -8,6 +8,7 @@ import serial
 type=["Brick", "Technic", "Plate", "Tile", "Slope", "Minifig", "Misc"]
 color=['white', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple']
 size=["1x1", "1x2", "1x3", "1x4", "1x6", "1x8", "2x2", "2x3", "2x4", "2x6", "2x8", "3x3", "3x4", "4x4", "4x6", "4x8", "6x6", "6x8", "8x8"]
+
 def check_weight():
     while True:
         if ser.in_waiting > 0:
@@ -86,15 +87,23 @@ def determine_bin():
             max_similarity = similarity
             best_match = bin_id
     print(max_similarity)
+    tell_angle(best_match)
+
     time.sleep(1)
     response=[None]*6
-    
+
 def tell_angle(bin):
     top=False
     if bin<19:
         top=True
-
+        if bin == 1:
+            angle = 90
+        else:
+            angle = -90
+        print(f"Sending angle {angle} to Arduino")
+        ser.write(f"{angle}\n".encode())
     return
+
 if __name__ == '__main__':
     with open("Status.txt", "w") as file:
         file.write("Status: Stop\n")
@@ -105,9 +114,9 @@ if __name__ == '__main__':
     import UI
     response=[None]*6
     # Initialize the serial connection
-    #port = '/dev/cu.usbmodem11301'
-    #ser = serial.Serial(port, 9600, timeout=1)
-    #threading.Thread(target=check_weight, daemon=True).start()
+    port = '/dev/cu.usbmodem11301'
+    ser = serial.Serial(port, 9600, timeout=1)
+    threading.Thread(target=check_weight, daemon=True).start()
     while True:
         determine_bin()
         time.sleep(0.25)
