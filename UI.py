@@ -1,12 +1,9 @@
-import serial
 from tkinter import *
 import tkinter.messagebox as messagebox
-
+import time
+import serial
 import compare
 import threading
-
-port = '/dev/cu.usbmodem11301'
-ser = serial.Serial(port, 9600, timeout=1)
 
 root = Tk()
 root.geometry("1080x550")
@@ -22,13 +19,124 @@ if not hasattr(root, '_status_initialized'):
     with open("Status.txt", "w") as file:
         file.write("Status: Stop\n")
     file.close()
-    with open("response.txt", "w") as file:
+    with open("Image/response.txt", "w") as file:
         file.write("LEGO not detected")
     file.close()
     compare.main(root)
     
     root._status_initialized = True
+def check_weight():
+    while True:
+        if ser.in_waiting > 0:
+            line = ser.readline().decode("utf-8").strip()
+            print(line)
 
+            if line and "ALERT: Bin is Full" in line: 
+                print("Bin is full! Stopping sorting.")
+                stop_sorting()
+                bin_full()
+def read_bin():
+    bins={1:{'Color':None,'Type':'Brick','Size':None}}
+    return bins
+def read_response(response):
+    time.sleep(0.25)
+    with open('Image/response.txt', 'r') as f:
+        res = f.read().strip()
+        if res == "LEGO not detected":
+            response.append({1:1})
+        else:
+            parts = res.split(". ")
+            response_data = {}
+            for part in parts:
+                if ": " in part:
+                    key, value = part.split(": ", 1)
+                    response_data[key.strip()] = value.strip()
+            response.append({
+                "Name": response_data.get("Name", ""),
+                "Category": response_data.get("Category", ""),
+                "Type": response_data.get("Type", "")
+            })
+            with open('Image/color.txt', 'r') as f:
+                color = f.read().strip()
+                response[-1]['Color']=color
+        f.close() 
+    response=response[1:]
+    return response
+def determine_bin():
+    response=[{1:1}]*6
+    while True:
+        time.sleep(0.25)
+        response=read_response(response)
+        if response == [{1:1}]*6:
+            time.sleep(0.25)
+            continue
+        bins=read_bin()
+        names=[]
+        for i in response:
+            if i == {1:1}:
+                continue
+            names.append(i['Name'])
+        if len(names) == 0:
+            time.sleep(0.25)
+            continue
+        name_counts = {name: names.count(name) for name in set(names)}
+        id=''
+        flag=False
+        for name,count in name_counts.items():
+            if count >= 4:
+                id=name
+                flag=True
+                break
+        if not flag:
+            continue
+        print("Piece Located",id)
+        print(response)
+        ids={}
+        for item in response:
+            if item == {1:1}:
+                continue
+            if item and item['Name'] == id:
+                ids = item
+                break
+        if 'Name' in ids:
+            name = ids['Name']
+            category = ids['Category']
+            typ = ids['Type']
+            color = ids['Color']
+        else:
+            print("Error: 'Name' key not found in ids")
+            continue
+
+        best_match = 0
+        max_similarity = 0
+
+        for bin_id, attributes in bins.items():
+            similarity = 0
+            if attributes['Size']!= None:
+                if attributes['Size'] in name:
+                    similarity += 1
+            if category==attributes['Type'] or (name in attributes['Type']):
+                similarity += 1
+            if attributes['Color'] == color:
+                similarity += 1
+
+            if similarity > max_similarity:
+                max_similarity = similarity
+                best_match = bin_id
+        print(max_similarity)
+        time.sleep(1)
+        response=[{1:1}]*6
+    
+def tell_angle(bin):
+    top=False
+    if bin<19:
+        top=True
+    return
+# Initialize the serial connection
+#port = '/dev/cu.usbmodem11301'
+#ser = serial.Serial(port, 9600, timeout=1)
+#threading.Thread(target=check_weight, daemon=True).start()
+threading.Thread(target=determine_bin, daemon=True).start()
 def start_sorting():
     status_label.config(text="Status: Running", fg="green")
     with open("Status.txt", "w") as file:
@@ -54,30 +162,20 @@ status_label = Label(button_frame, text="Status: Stop", font=("Arial", 12), fg="
 status_label.pack(side=LEFT, padx=10)
 
 # Adding three dropdown menus from left to right
-options1 = [i for i in range(1, 16)]  
-optionsd1 = [i for i in range(16, 26)]  
+options1 = [i for i in range(1, 19)]  
+optionsd1 = [i for i in range(19, 30)]  
 options2 = ["Brick", "Technic", "Plate", "Tile", "Slope", "Minifig", "Misc"]
-options3 = ["Red", "Blue", "Green", "Yellow", "Black", "White", "Brown", "Gray"]
+options3 = ['white', 'red', 'orange', 'yellow', 'green', 'cyan', 'blue', 'purple']
 options4=["1x1", "1x2", "1x3", "1x4", "1x6", "1x8", "2x2", "2x3", "2x4", "2x6", "2x8", "3x3", "3x4", "4x4", "4x6", "4x8", "6x6", "6x8", "8x8"]
 # Dictionary to record sorting options for each bin
 sorting_options = {}
-for i in range(1, 26):
+for i in range(1, 30):
     sorting_options[i] = {
         "Type": "None",
         "Color": "None",
         "Size": "None"
     }
 
-def check_weight():
-    while True:
-        if ser.in_waiting > 0:
-            line = ser.readline().decode("utf-8").strip()
-            print(line)
-
-            if line and "ALERT: Bin is Full" in line: 
-                print("Bin is full! Stopping sorting.")
-                stop_sorting()
-                bin_full()
 
 # Function to update the dictionary with sorting options
 def update_sorting_options(bin_number, bin_type, bin_color, bin_size,level=None):
@@ -242,13 +340,11 @@ table_button = Button(root, text="Show Sorting Table", font=("Arial", 12), comma
 table_button.pack(pady=20)
 
 
-threading.Thread(target=check_weight, daemon=True).start()
-
 label = Label(root)
 label.pack(pady=10)
 
 def auto_detect():
-    with open('response.txt', 'r') as f:
+    with open('Image/response.txt', 'r') as f:
         content = f.read().strip()
         label.config(text=f"Detected LEGO: {content}", font=("Helvetica", 9))
     root.after(100, auto_detect)

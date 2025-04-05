@@ -11,7 +11,7 @@ def get_brickognize_data(image_path):
         response_data = json.loads(res.content)
     except json.JSONDecodeError:
         response_data = None
-        print("Empty response received.")
+        #print("Empty response received.")
         return
 
     def print_first_item(data):
@@ -21,9 +21,9 @@ def get_brickognize_data(image_path):
             category = item.get('category', 'N/A')
             type_ = item.get('type', 'N/A')
             score = item.get('score', 'N/A')
-            print(f"Name: {name}, Category: {category}, Type: {type_}, Score: {score}")
+            #print(f"Name: {name}, Category: {category}, Type: {type_}, Score: {score}")
             with open('Image/response.txt', 'w') as f:
-                f.write(f"Name: {name}, Category: {category}, Type: {type_}")
+                f.write(f"Name: {name}. Category: {category}. Type: {type_}")
             f.close()
         else:
             #print("No items found")

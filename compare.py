@@ -77,6 +77,9 @@ def color(frame, foreground_contour):
         x, y, w, h = best_contour
         frame = cv2.rectangle(frame, (x, y), (x + w, y + h), best_screen, 2)
         cv2.putText(frame, best_color_name, (x, y+h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, best_screen)
+        with open('Image/color.txt', 'w') as f:
+            f.write(best_color_name)
+        f.close()
 
 
     
@@ -99,15 +102,15 @@ def main(root):
             foreground_mask, contour = detect_foreground(background, frame)
 
             if np.count_nonzero(foreground_mask) > 700:
-                print("LEGO detected!")
+                #print("LEGO detected!")
                 cv2.imwrite('Image/' + "test.jpg", frame)
-                print("Save image successfully!")
-                print("-------------------------")
+                #print("Save image successfully!")
+                #print("-------------------------")
 
                 threading.Thread(target=Brickoganize.get_brickognize_data,
                                  args=('Image/test.jpg',)).start()
             else:
-                print("No LEGO detected.")
+                #print("No LEGO detected.")
                 with open('Image/response.txt', 'w') as f:
                     f.write("LEGO not detected")
                 f.close()
@@ -138,7 +141,7 @@ def main(root):
             video_label.configure(image=imgtk)
 
         # Schedule the next frame update
-        root.after(200, update_frame)
+        root.after(250, update_frame)
 
     print("Initializing...")
     cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # Open webcam
