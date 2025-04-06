@@ -124,6 +124,7 @@ def determine_bin():
                 max_similarity = similarity
                 best_match = bin_id
         print(max_similarity)
+        tell_angle(max_similarity)
         time.sleep(1)
         response=[{1:1}]*6
     
@@ -131,10 +132,15 @@ def tell_angle(bin):
     top=False
     if bin<19:
         top=True
+        if bin == 0:
+            angle = 90
+        else:
+            angle = -90
+        print(f"Sending angle {angle} to Arduino")
+        ser.write(f"{angle}\n".encode())
     return
-
 # Initialize the serial connection
-port = '/dev/cu.usbmodem11301'
+port = "/dev/cu.usbmodem11301"
 ser = serial.Serial(port, 9600, timeout=1)
 threading.Thread(target=check_weight, daemon=True).start()
 threading.Thread(target=determine_bin, daemon=True).start()

@@ -3,14 +3,15 @@
 
 #define DOUT  3
 #define CLK  2
-#define enA 10
+
+#define enA 12
 #define in1 9
 #define in2 8
 #define in3 7
 #define in4 6
 #define enB 5
 
-int speedFast = 250;
+int speedFast = 230;
 int speedSlow = 200;
 
 char userinput;

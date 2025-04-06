@@ -93,6 +93,9 @@ def main(root):
     def update_frame():
         status = check_status()
         if status == "Status: Start":
+            cap = cv2.VideoCapture(0)
+            # cap.set(3, 1920)
+            # cap.set(4, 1080)
             ret, frame = cap.read()
             if not ret:
                 cap.release()
@@ -118,7 +121,7 @@ def main(root):
             color(frame, contour)
             cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.putText(frame, "Contour", (x, y + h), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 255, 0))
-            frame = cv2.resize(frame, (400, 300))
+            frame = cv2.resize(frame, (400, 225)) # video size
             # Convert the frame to an image format compatible with Tkinter
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             img = Image.fromarray(frame_rgb)
@@ -144,7 +147,7 @@ def main(root):
         root.after(250, update_frame)
 
     print("Initializing...")
-    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # Open webcam
+    cap = cv2.VideoCapture(0)  # Open webcam
 
     print("Capturing background...")
     time.sleep(1.5)
