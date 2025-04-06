@@ -1,5 +1,5 @@
-Bin 1: Type=Brick, Color=Red,Size=Top
-Bin 2: Type=None, Color=None,Size=None
+Bin 1: Type=None, Color=None,Size=None
+Bin 2: Type=Technic, Color=orange,Size=Top
 Bin 3: Type=None, Color=None,Size=None
 Bin 4: Type=None, Color=None,Size=None
 Bin 5: Type=None, Color=None,Size=None
@@ -23,3 +23,7 @@ Bin 22: Type=None, Color=None,Size=None
 Bin 23: Type=None, Color=None,Size=None
 Bin 24: Type=None, Color=None,Size=None
 Bin 25: Type=None, Color=None,Size=None
+Bin 26: Type=None, Color=None,Size=None
+Bin 27: Type=None, Color=None,Size=None
+Bin 28: Type=None, Color=None,Size=None
+Bin 29: Type=None, Color=None,Size=None

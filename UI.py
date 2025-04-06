@@ -64,8 +64,18 @@ def read_response(response):
     return response
 def determine_bin():
     response=[{1:1}]*6
+    def check_status():
+        with open("Status.txt", "r") as file:
+            status = file.read().strip()
+        return status
     while True:
         time.sleep(0.25)
+        if check_status() != "Status: Start":
+            with open("Image/response.txt", "w") as file:
+                file.write("LEGO not detected")
+            file.close()
+            response=[{1:1}]*6
+            continue
         response=read_response(response)
         if response == [{1:1}]*6:
             time.sleep(0.25)
@@ -155,6 +165,9 @@ def stop_sorting():
     status_label.config(text="Status: Stop", fg="red")
     with open("Status.txt", "w") as file:
         file.write("Status: Stop\n")
+    file.close()
+    with open("Image/response.txt", "w") as file:
+        file.write("LEGO not detected")
     file.close()
 
 def bin_full():

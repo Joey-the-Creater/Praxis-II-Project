@@ -66,6 +66,8 @@ void loop() {
     Serial.println("ALERT: Bin is Full");  
     speedFast = 0;
     speedSlow = 0;
+    while(1){
+    }
   }
 
   delay(1000);
